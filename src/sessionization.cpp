@@ -19,25 +19,27 @@ struct userRecord {
 	sys_seconds end;
 	int count;
 	list<pair<string, sys_seconds>>::iterator it;
-	userRecord (sys_seconds t, list<pair<string, sys_seconds>>::iterator i) :
-		start(t), end(t), count(1), it (i) {}
+	list<string>::iterator it2;
+	userRecord (sys_seconds t, list<pair<string, sys_seconds>>::iterator i1, list<string>::iterator i2) :
+		start(t), end(t), count(1), it (i1), it2 (i2) {}
 };
 
 int main(int argc, char *argv[])
 {
 	// check arguments
-	//if (argc != 4) {
-	//	cout << "Insufficient arguments!" << endl;
-	//	exit(EXIT_FAILURE);
-	//}
+	if (argc != 4) {
+		cout << "Insufficient arguments!" << endl;
+		exit(EXIT_FAILURE);
+	}
 
 	unordered_map<string, userRecord> dict;
 	list<pair<string, sys_seconds>> L; //<ip, time>
+	list<string> ordered_req;
 	sys_seconds prev;
 
 	//read inactivity period value
-	//ifstream period_file (argv[2]);
-	ifstream period_file ("./input/inactivity_period.txt");
+	ifstream period_file (argv[2]);
+	//ifstream period_file ("./input/inactivity_period.txt");
 	string period_s;
 	getline(period_file, period_s);
 	unsigned int period = stoi(period_s);
@@ -45,8 +47,9 @@ int main(int argc, char *argv[])
 	cout << "period: " << period << endl;
 
 	// open input log file
-	//ifstream infile (argv[1]);
-	ifstream infile ("./input/log.csv");
+	ifstream infile (argv[1]);
+	ofstream outfile (argv[3]);
+	//ifstream infile ("./input/log.csv");
 	string line;
 
 	// skip the first line
@@ -88,7 +91,12 @@ int main(int argc, char *argv[])
 			auto diff = std::chrono::duration_cast<std::chrono::milliseconds> (tp - record.end);
 			unsigned int diff_ms = diff.count();
 			if (diff_ms > period_ms) {
-				cout << "printing to file: " << l.first << " " << record.count << endl;
+				auto dur = std::chrono::duration_cast<std::chrono::milliseconds> (record.end - record.start);
+				//cout << "printing to file: " << l.first << "," << record.start << "," << record.end << "," \
+					<< dur.count()/1000 << "," << record.count << endl;
+				outfile << l.first << "," << record.start << "," << record.end << "," \
+					<< dur.count()/1000 + 1<< "," << record.count << endl;
+				ordered_req.erase(record.it2);
 				dict.erase(l.first);
 				L.pop_back();
 			} else
@@ -99,7 +107,8 @@ int main(int argc, char *argv[])
 		auto it = dict.find(ip);
 		if (it == dict.end()) {
 			L.push_front({ip, tp});
-			dict.insert(make_pair(ip, userRecord{tp, L.begin()}));
+			ordered_req.push_front(ip);
+			dict.insert(make_pair(ip, userRecord{tp, L.begin(), ordered_req.begin()}));
 		} else {
 			auto& record = it->second;
 			//already exists
@@ -120,6 +129,16 @@ int main(int argc, char *argv[])
 
 	//before finish simulation, print all remaining active users
 	//in the ascending order of start time
+	for (auto it = ordered_req.rbegin(); it != ordered_req.rend(); it++) {
+		auto dict_it = dict.find(*it);
+		assert(dict_it != dict.end());
+		auto record = dict_it->second;
+		auto dur = std::chrono::duration_cast<std::chrono::milliseconds> (record.end - record.start);
+		//cout << "printing to file: " << *it << "," << record.start << "," << record.end << "," \
+			<< dur.count()/1000 << "," << record.count << endl;
+		outfile << *it << "," << record.start << "," << record.end << "," \
+			<< dur.count()/1000 + 1<< "," << record.count << endl;
+	}
 }
 
 
