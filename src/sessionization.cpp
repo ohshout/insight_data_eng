@@ -7,10 +7,8 @@
 #include <cassert>
 #include "date.h"
 
-//TODO instead of update dict and L for every line
+//TODO instead of update user every line
 //we might be able to aggregate multiple lines if they're of the same user
-//TODO use array and enum to handle getline
-//TODO update or clean first, think about corner case!
 
 using namespace date;
 using namespace std;
@@ -35,7 +33,7 @@ public:
 
 private:
 	unordered_map<string, userRecord> active_users_dict;
-	list<pair<string, sys_seconds>> last_access; //<ip, time>
+	list<pair<string, date::sys_seconds>> last_access; //<ip, time>
 	list<string> active_users_ordered_by_start;
 	unsigned int period_ms;
 	ofstream& outfile;
@@ -59,14 +57,14 @@ void Solution::process_line (string line)
 	// extract ip
 	std::getline (iss, token, ',');
 	string ip = token;
-	cout << "ip: " << ip << endl;
+	//cout << "ip: " << ip << endl;
 
 	// extract datetime
 	getline (iss, token, ',');
 	string datetime = token;
 	getline (iss, token, ',');
 	datetime = datetime + "," + token;
-	cout << "datetime: " << datetime << endl;
+	//cout << "datetime: " << datetime << endl;
 	// parse datetime
 	istringstream dt (datetime);
 	date::sys_seconds tp;
