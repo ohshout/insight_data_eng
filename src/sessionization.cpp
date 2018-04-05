@@ -199,7 +199,7 @@ int main(int argc, char *argv[])
 	string period;
 	getline(period_file, period);
 	unsigned int period_ms = 1000*stoi(period);
-	cout << "period: " << period_ms << endl;
+	//cout << "period: " << period_ms << endl;
 
 	// open output file
 	ofstream outfile (argv[3]);
