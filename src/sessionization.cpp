@@ -5,6 +5,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <cassert>
+#include <stdexcept>
 #include "date.h"
 
 //TODO instead of update user every line
@@ -195,10 +196,21 @@ int main(int argc, char *argv[])
 
 	// read inactivity period value
 	ifstream period_file (argv[2]);
+	if (!period_file.is_open()) {
+		cout << "File " << argv[2] << "not found!" << endl;
+		exit(EXIT_FAILURE);
+	}
 	//ifstream period_file ("./input/inactivity_period.txt");
 	string period;
 	getline(period_file, period);
-	unsigned int period_ms = 1000*stoi(period);
+	unsigned int period_ms;
+	try {
+		period_ms = 1000*stoi(period);
+	}
+	catch(std::invalid_argument& e){
+		cout << "Invalid argument for stoi()" << endl;
+		exit(EXIT_FAILURE);
+	}
 	//cout << "period: " << period_ms << endl;
 
 	// open output file
@@ -210,6 +222,10 @@ int main(int argc, char *argv[])
 	// open input log file
 	ifstream infile (argv[1]);
 	//ifstream infile ("./input/log.csv");
+	if (!infile.is_open()) {
+		cout << "File " << argv[1] << "not found!" << endl;
+		exit(EXIT_FAILURE);
+	}
 
 	string line;
 	// skip the header line
