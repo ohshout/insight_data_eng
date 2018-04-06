@@ -2,8 +2,8 @@
 Please use g++ > 5.0. Tested wth g++ 5.4.0
 
 # Data Structures:
-My main data structure is a hash table (named *active_users_dict*) that maps an active user's ip address
-to his/her activity record, which is composed of the first access time, the latest access time and number of accesses.
+The main data structure is a hash table (named *active_users_dict*) that maps an active user's ip address
+to his/her activity record, which is composed of the first access time, the latest access time and the number of accesses.
 
 There are two associative data structures. Both are linked list. One is named *last_access* and stores
 each active user's ip address and his/her latest access time. The list is ordered by access time.
@@ -14,12 +14,14 @@ by his/her first access time. The head of the list stores the earliest one.
 
 # Algorithm Design
 The program reads the input file line by line. For each line, it extracts the ip address and the current time.
+Then it follows the three steps below:
 
 ## 1. Clean inactive users
 The program iterates over the *last_access* list starting from the tail.
-For each list node, if ((this node's timestamp - cur) > *inactivity_period*), indicating the user has gone inactive,
+For each list node, if ((this node's timestamp - current time) > *inactivity_period*), indicating the user has gone inactive,
 the program then retrieves the stored ip address and find the user's record in *active_users_dict*. It then
-dumps the user's activity to the output file.
+dumps the user's activity to the output file. After that, it removes the user's information from all the three
+data structures.
 
 ## 2. Insert the new record
 The program then creates or updates a user record, reflecting the information in the current line. It also updates
